@@ -9,7 +9,7 @@ paragraphs.forEach((text, paragraphIndex) => {
   });
 });
 const escapeHtml = (value) => value.replace(/[&<>"']/gu, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-function ruby(text) { return escapeHtml(text).replace(/([^（）]+?)（([^（）]+)）/gu, '<ruby>$1<rt>$2</rt></ruby>'); }
+function ruby(text) { return escapeHtml(text).replace(/([\p{Script=Han}々〆ヵヶ]+)（([^（）]+)）/gu, '<ruby>$1<rt>$2</rt></ruby>'); }
 const key = 'oku-no-hosomichi-study-v1';
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
