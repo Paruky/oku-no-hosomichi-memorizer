@@ -13,24 +13,23 @@ function ruby(text) { return escapeHtml(text).replace(/([^（）]+?)（([^（）
 const key = 'oku-no-hosomichi-study-v1';
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
-let mastered = new Set(saved.mastered || []), review = new Set(saved.review || []), index = 0, soundOn = saved.soundOn !== false, seconds = 240, timer = null;
+let mastered = new Set(saved.mastered || []), review = new Set(saved.review || []), index = 0, seconds = 240, timer = null;
 const $ = (id) => document.getElementById(id), pad = (n) => String(n).padStart(2, '0');
-function persist() { localStorage.setItem(key, JSON.stringify({ mastered: [...mastered], review: [...review], soundOn })); }
-function speak(text) { if (!soundOn || !('speechSynthesis' in window)) return; speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = .86; speechSynthesis.speak(utterance); }
+function persist() { localStorage.setItem(key, JSON.stringify({ mastered: [...mastered], review: [...review] })); }
 function select(i) {
   index = Math.max(0, Math.min(segments.length - 1, i)); const item = segments[index];
-  $('answer-text').hidden = true; $('hint-text').hidden = false; $('self-grade').hidden = true; $('recall-input').value = ''; $('check-feedback').textContent = '';
+  $('answer-text').hidden = true; $('hint-text').hidden = false; $('self-grade').hidden = true;
   $('answer-text').innerHTML = ruby(item.text); $('progress-number').textContent = pad(index + 1); $('progress-fill').style.width = ((index + 1) / segments.length * 100) + '%';
   $('paragraph-chip').textContent = item.paragraphIndex ? '平泉' : '序章'; $('progress-total').textContent = segments.length; $('total-count').textContent = segments.length;
   $('prev-button').disabled = !index; $('next-button').disabled = index === segments.length - 1;
   $('mastery-label').textContent = mastered.has(index) ? '習得済み ✓' : review.has(index) ? '復習でもう一度' : '声に出してみよう';
   $('streak-label').textContent = '今日の正解　' + mastered.size + '節';
 }
-function reveal() { $('hint-text').hidden = true; $('answer-text').hidden = false; $('self-grade').hidden = false; speak(segments[index].text); }
+function reveal() { $('hint-text').hidden = true; $('answer-text').hidden = false; $('self-grade').hidden = false; }
 function grade(got) { if (got) { mastered.add(index); review.delete(index); } else { mastered.delete(index); review.add(index); } persist(); if (index < segments.length - 1) select(index + 1); else renderReview(); }
 function mode(name) {
   document.querySelectorAll('.tab').forEach((tab) => tab.classList.toggle('active', tab.dataset.mode === name));
-  $('learn-panel').hidden = name !== 'learn'; $('recite-panel').hidden = name !== 'recite'; $('review-panel').hidden = name !== 'review';
+  $('learn-panel').hidden = name !== 'learn'; $('recite-panel').hidden = name !== 'recite'; $('review-panel').hidden = name !== 'review'; $('fulltext-panel').hidden = name !== 'fulltext';
   if (name === 'review') renderReview();
 }
 function renderReview() {
@@ -41,27 +40,15 @@ document.querySelectorAll('.tab').forEach((tab) => tab.addEventListener('click',
 $('reveal-button').addEventListener('click', reveal);
 $('self-grade').addEventListener('click', (e) => { const b = e.target.closest('[data-grade]'); if (b) grade(b.dataset.grade === 'gotit'); });
 $('prev-button').addEventListener('click', () => select(index - 1)); $('next-button').addEventListener('click', () => select(index + 1));
-$('recall-form').addEventListener('submit', (e) => {
-  e.preventDefault(); const clean = (s) => s.replace(/[\s、。，．,.]/gu, '');
-  const ok = clean($('recall-input').value) === clean(segments[index].text), f = $('check-feedback');
-  f.textContent = ok ? 'ぴったり！声にも出して、答えを見比べてみよう。' : '少し違うところがあるみたい。答えを開いて確かめよう。';
-  f.className = 'feedback' + (ok ? '' : ' wrong');
-  if (ok) { mastered.add(index); review.delete(index); persist(); $('mastery-label').textContent = '習得済み ✓'; $('streak-label').textContent = '今日の正解　' + mastered.size + '節'; }
-});
 function updateTimer() { $('timer-display').textContent = pad(Math.floor(seconds / 60)) + ':' + pad(seconds % 60); $('timer-display').classList.toggle('urgent', seconds <= 30); $('timer-fill').style.width = seconds / 240 * 100 + '%'; }
 $('timer-start').addEventListener('click', () => {
   if (seconds === 0) seconds = 240;
   if (timer) { clearInterval(timer); timer = null; $('timer-start').innerHTML = '再開する <span>→</span>'; $('timer-message').textContent = '一時停止中。準備ができたら再開しよう。'; return; }
-  $('full-text').hidden = true; $('fulltext-toggle').disabled = true; $('fulltext-toggle').textContent = '暗唱中は本文を表示できません';
   $('timer-start').innerHTML = '一時停止 <span>Ⅱ</span>'; $('timer-message').textContent = '落ち着いて、最初の一節から。';
-  timer = setInterval(() => { seconds--; updateTimer(); if (seconds <= 0) { clearInterval(timer); timer = null; $('timer-start').textContent = 'もう一度挑戦'; $('timer-message').textContent = '4分終了。どこまで言えたか、本文を開いて確認しよう。'; $('fulltext-toggle').disabled = false; $('fulltext-toggle').innerHTML = '本文を表示して確認 <span>↓</span>'; } }, 1000);
+  timer = setInterval(() => { seconds--; updateTimer(); if (seconds <= 0) { clearInterval(timer); timer = null; $('timer-start').textContent = 'もう一度挑戦'; $('timer-message').textContent = '4分終了。全文ページで本文を確認しよう。'; } }, 1000);
 });
-$('timer-reset').addEventListener('click', () => { clearInterval(timer); timer = null; seconds = 240; updateTimer(); $('fulltext-toggle').disabled = false; $('fulltext-toggle').innerHTML = '本文を表示して確認 <span>↓</span>'; $('timer-start').innerHTML = '暗唱を始める <span>→</span>'; $('timer-message').textContent = '準備ができたら、スタート。'; });
-$('fulltext-toggle').addEventListener('click', () => {
-  const pane = $('full-text'); pane.hidden = !pane.hidden; $('fulltext-toggle').innerHTML = pane.hidden ? '本文を表示して確認 <span>↓</span>' : '本文を閉じる <span>↑</span>';
-  if (!pane.hidden) pane.innerHTML = paragraphs.map((p) => '<p>'+ruby(p)+'</p>').join('');
-});
+$('timer-reset').addEventListener('click', () => { clearInterval(timer); timer = null; seconds = 240; updateTimer(); $('timer-start').innerHTML = '暗唱を始める <span>→</span>'; $('timer-message').textContent = '準備ができたら、スタート。'; });
+$('full-text').innerHTML = paragraphs.map((p) => '<p>'+ruby(p)+'</p>').join('');
 $('review-list').addEventListener('click', (e) => { const b = e.target.closest('[data-open]'); if (b) { select(Number(b.dataset.open)); mode('learn'); window.scrollTo({top:0,behavior:'smooth'}); } });
-$('sound-toggle').textContent = soundOn ? '🔊' : '🔇'; $('sound-toggle').addEventListener('click', () => { soundOn = !soundOn; $('sound-toggle').textContent = soundOn ? '🔊' : '🔇'; persist(); if (!soundOn && 'speechSynthesis' in window) speechSynthesis.cancel(); });
 $('reset-progress').addEventListener('click', () => { if (!confirm('暗唱の進捗と復習リストをリセットしますか？')) return; mastered.clear(); review.clear(); persist(); select(index); });
 select(0); updateTimer();

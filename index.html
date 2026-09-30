@@ -12,7 +12,7 @@
   <main class="shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="暗唱ラボ ホーム"><span class="brand-mark">暗</span><span>暗唱ラボ</span></a>
-      <div class="top-actions"><button class="icon-button" id="sound-toggle" aria-label="音声読み上げの設定" title="音声読み上げ">🔊</button><button class="icon-button" id="reset-progress" aria-label="進捗をリセット" title="進捗をリセット">↺</button></div>
+      <div class="top-actions"><button class="icon-button" id="reset-progress" aria-label="進捗をリセット" title="進捗をリセット">↺</button></div>
     </header>
 
     <section class="hero">
@@ -20,7 +20,7 @@
       <div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="mountain mountain-back"></div><div class="mountain mountain-front"></div><div class="road"></div><span class="art-seal">奥<br>の<br>細<br>道</span></div>
     </section>
 
-    <nav class="tabs" aria-label="練習モード"><button class="tab active" data-mode="learn"><span>01</span> 一節ずつ</button><button class="tab" data-mode="recite"><span>02</span> 通し暗唱</button><button class="tab" data-mode="review"><span>03</span> 復習</button></nav>
+    <nav class="tabs" aria-label="練習モード"><button class="tab active" data-mode="learn"><span>01</span> 一節ずつ</button><button class="tab" data-mode="recite"><span>02</span> 通し暗唱</button><button class="tab" data-mode="review"><span>03</span> 復習</button><button class="tab" data-mode="fulltext"><span>04</span> 全文を見る</button></nav>
 
     <section id="learn-panel" class="practice-panel">
       <div class="section-head"><div><p class="eyebrow">STEP BY STEP</p><h2>一節ずつ覚える</h2></div><div class="progress-label"><b id="progress-number">01</b><span> / <span id="progress-total">—</span></span></div></div>
@@ -28,7 +28,6 @@
       <div class="study-card">
         <div class="card-topline"><span class="chip" id="paragraph-chip">序章</span><span id="mastery-label" class="mastery-label">声に出してみよう</span></div>
         <div class="prompt-area"><div id="hint-text" class="hint-text">この節を声に出して暗唱してみましょう。</div><div id="answer-text" class="answer-text" hidden></div></div>
-        <form id="recall-form" class="recall-form"><label for="recall-input">暗唱した内容を入力して確かめる <span>任意</span></label><div class="input-row"><input id="recall-input" autocomplete="off" placeholder="思い出した文章を入力…"><button class="check-button" type="submit">答え合わせ <span>↗</span></button></div><p id="check-feedback" class="feedback" aria-live="polite"></p></form>
         <div class="card-actions"><button id="reveal-button" class="text-button" type="button">答えを見る <span>↓</span></button><div class="self-grade" id="self-grade" hidden><span>声に出して言えた？</span><button type="button" data-grade="again" class="grade-again">もう一度</button><button type="button" data-grade="gotit" class="grade-gotit">言えた ✓</button></div></div>
       </div>
       <div class="study-nav"><button id="prev-button" class="nav-button" type="button">← <span>前へ</span></button><span id="streak-label">今日の正解　0節</span><button id="next-button" class="nav-button next" type="button"><span>次の節</span> →</button></div>
@@ -38,11 +37,12 @@
     <section id="recite-panel" class="practice-panel" hidden>
       <div class="section-head"><div><p class="eyebrow">FOUR MINUTES</p><h2>4分間の通し暗唱</h2></div><span class="live-pill"><i></i> 本番モード</span></div>
       <div class="timer-card"><div class="timer-caption">残り時間</div><div id="timer-display" class="timer-display" aria-live="polite">04:00</div><div class="timer-track"><div id="timer-fill"></div></div><div id="timer-message" class="timer-message">準備ができたら、スタート。</div><div class="timer-actions"><button id="timer-start" class="primary-button" type="button">暗唱を始める <span>→</span></button><button id="timer-reset" class="timer-reset" type="button">やり直す</button></div></div>
-      <div class="recite-note"><span class="note-icon">✳</span><div><b>まずは画面を見ずに、最初から最後まで。</b><p>タイマー中は本文が隠れます。時間内に言えたところまで進んだら、答えを開いて確認できます。</p></div></div>
-      <div class="full-text-area"><button id="fulltext-toggle" class="text-button" type="button">本文を表示して確認 <span>↓</span></button><div id="full-text" class="full-text" hidden></div></div>
+      <div class="recite-note"><span class="note-icon">✳</span><div><b>まずは画面を見ずに、最初から最後まで。</b><p>4分間、声に出して通してみよう。終わったら「全文を見る」で振り返れます。</p></div></div>
     </section>
 
     <section id="review-panel" class="practice-panel" hidden><div class="section-head"><div><p class="eyebrow">SPACED REVIEW</p><h2>復習する節</h2></div><span class="review-count" id="review-count">0節</span></div><p class="review-intro">「もう一度」にした節を集めました。思い出せるか試してみよう。</p><div id="review-list" class="review-list"></div></section>
+
+    <section id="fulltext-panel" class="practice-panel" hidden><div class="section-head"><div><p class="eyebrow">THE COMPLETE TEXT</p><h2>おくのほそ道　全文</h2></div><span class="chip">序章・平泉</span></div><p class="fulltext-intro">ルビ付きの本文を、最初から最後まで読めます。</p><article id="full-text" class="full-text"></article></section>
 
     <footer><span>松尾芭蕉　『おくのほそ道』</span><span>声に出すことが、記憶の近道。</span></footer>
   </main>
